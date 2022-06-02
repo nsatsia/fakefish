@@ -1,5 +1,5 @@
-REGISTRY ?= quay.io
-IMAGE_NAMESPACE ?= mavazque
+REGISTRY ?= lab-registry.ocpmgmt.lab.diktio.net
+IMAGE_NAMESPACE ?= nsatsia
 IMAGE_NAME ?= fakefish
 IMAGE_URL ?= $(REGISTRY)/$(IMAGE_NAMESPACE)/$(IMAGE_NAME)
 TAG ?= latest
