@@ -15,15 +15,19 @@ ISO_PATH='/'$(echo $ISO| cut -d '/' -f4-)
 curl -X POST -s -k -u ''"${BMC_USERNAME}"'':''"${BMC_PASSWORD}"'' https://${BMC_ENDPOINT}/redfish/v1/Managers/1/VM1/CfgCD/Actions/IsoConfig.UnMount -d ""
 
 # Configure image
-curl -X PATCH -s -k -u ''"${BMC_USERNAME}"'':''"${BMC_PASSWORD}"'' https://${BMC_ENDPOINT}/redfish/v1/Managers/1/VM1/CfgCD --data '{"Host": "'${ISO_URL}'","Path": "'${ISO_PATH}'"}'
 sleep 2
+echo
+curl -X PATCH -s -k -u ''"${BMC_USERNAME}"'':''"${BMC_PASSWORD}"'' https://${BMC_ENDPOINT}/redfish/v1/Managers/1/VM1/CfgCD --data '{"Host": "'${ISO_URL}'","Path": "'${ISO_PATH}'"}'
 if [ $? -eq 0 ]; then
   # Mount image
-  curl -X POST -s -k -u ''"${BMC_USERNAME}"'':''"${BMC_PASSWORD}"'' https://${BMC_ENDPOINT}/redfish/v1/Managers/1/VM1/CfgCD/Actions/IsoConfig.Mount -d ""
   sleep 3
+  echo
+  curl -X POST -s -k -u ''"${BMC_USERNAME}"'':''"${BMC_PASSWORD}"'' https://${BMC_ENDPOINT}/redfish/v1/Managers/1/VM1/CfgCD/Actions/IsoConfig.Mount -d ""
   if [ $? -eq 0 ]; then
     # Check image is mounted
-    IMAGE=$(curl -s -k -u ''"$REDFISH_USER"'':''"$REDFISH_PASS"'' https://${BMC_ENDPOINT}/redfish/v1/Managers/1/VM1/CD1)
+    IMAGE=$(curl -s -k -u ''"${BMC_USERNAME}"'':''"${BMC_PASSWORD}"'' https://${BMC_ENDPOINT}/redfish/v1/Managers/1/VM1/CD1)
+    echo
+    echo $IMAGE
     if `echo $IMAGE | egrep -q ${ISO_PATH}`; then
       exit 0
     else
@@ -35,5 +39,3 @@ if [ $? -eq 0 ]; then
 else
   exit 1
 fi
-
-exit 0
