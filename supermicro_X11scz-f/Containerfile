@@ -1,5 +1,4 @@
-FROM registry.fedoraproject.org/fedora:35
-MAINTAINER Mario Vazquez <mavazque@redhat.com>
+FROM registry.fedoraproject.org/fedora:39
 
 RUN set -x && \
     dnf -y update && \
@@ -9,13 +8,27 @@ RUN set -x && \
 
 RUN mkdir -p /opt/fakefish/
 
-COPY app/fakefish.py /opt/fakefish/fakefish.py
+# The stars in the command below will only copy those files if they exist
+COPY app/fakefish.py app/cert.pem* app/cert.key* /opt/fakefish/
 
 ADD app/templates /opt/fakefish/templates
-ADD dell_scripts /opt/fakefish/custom_scripts
+COPY supermicro_X11scz-f/*.sh /opt/fakefish/custom_scripts
 
 WORKDIR /opt/fakefish/
+
+RUN chown -R 1024 /opt/fakefish/
 
 USER 1024
 
 ENTRYPOINT ["/usr/bin/python3", "-u", "/opt/fakefish/fakefish.py"] 
+#CMD ["/usr/bin/python3", "-u", "/opt/fakefish/fakefish.py"] 
+
+
+# podman run --tls-verify=false --name supermicro-x11 -d -p 9011:9000 -e BMC_IP=198.19.142.10 lab-registry.home.lab.diktio.net/nsatsia/supermicro:x11scz-f
+# firewall-cmd --add-port=9011/tcp --permanent
+# firewall-cmd --reload
+# cd /etc/systemd/system/
+# podman generate systemd --name supermicro-x11 --files --new
+# systemctl daemon-reload
+# podman stop supermicro-x11
+# systemctl enable --now container-supermicro-x11.service
